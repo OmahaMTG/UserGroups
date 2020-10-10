@@ -1,0 +1,71 @@
+name: CI
+# https://docs.microsoft.com/en-us/dotnet/core/deploying/deploy-with-cli
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch.
+  push:
+    branches:
+      - master
+
+env:
+  AZURE_WEBAPP_NAME: omtg # set this to your application's name
+  #AZURE_WEBAPP_PACKAGE_PATH: './src/OmahaMtg.WebUi/bin/Release/netcoreapp3.1/win-x86/publish'      # set this to the path to your web app project, defaults to the repository root
+
+jobs:
+  build:
+    runs-on: windows-2019
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
+
+      - name: Setup Node
+        uses: actions/setup-node@v1.1.0
+
+      - name: npm install, build, and publish
+        working-directory: ./src/omaha-mtg-admin
+        run: |
+          npm install
+          npm run build
+          npm run publish
+
+      - uses: microsoft/variable-substitution@v1
+        with:
+          files: "./src/OmahaMtg.WebUi/appsettings.json"
+        env:
+          ConnectionStrings.DefaultConnection: ${{ secrets.DB_CONNECTION }}
+          EmailConfig.MailGunDomain: ${{ secrets.MAILGUN_DOMAIN }}
+          EmailConfig.MailGunApiKey: ${{ secrets.MAILGUN_API_KEY }}
+          EmailConfig.SMTPServer: ${{ secrets.SMTPServer }}
+          EmailConfig.SMTPPort: ${{ secrets.SMTPPort }}
+
+      - name: publish with dotnet
+        run: dotnet publish ./src/OmahaMtg.WebUi/OmahaMtg.WebUi.csproj -c Release /p:PublishProfile=CustomProfile /p:Password=${{ secrets.DISCOUNT_ASP_PASSWORD }} /p:UserName=${{ secrets.DISCOUNT_ASP_USER }}
+    # - name: 'Deploy to Azure WebApp'
+    #   uses: azure/webapps-deploy@v1
+    #   with:
+    #     app-name: ${{ env.AZURE_WEBAPP_NAME }}
+    #     publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+    #     package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    # - uses: sebastianpopp/ftp-action@releases/v2
+    #   with:
+    #     host: ${{ secrets.DISCOUNT_ASP_FTP_URL }}
+    #     user: ${{ secrets.DISCOUNT_ASP_FTP_USER }}
+    #     password: ${{ secrets.DISCOUNT_ASP_FTP_PASSWORD }}
+    #     localDir: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    #     remoteDir: "/newsite"
+    # - name: Stop Application Pool
+    #   shell: cmd
+    #   run: '"C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:recycleApp -dest:recycleApp="${{ env.RECYCLE_APP_NAME }}",recycleMode="StopAppPool",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}/msdeploy.axd?site=${{ env.IIS_WEBSITE_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",AuthType="Basic"'
+    # - name: Deploy Application
+    #   shell: cmd
+    #   run: '"C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:contentPath="%CD%\${{ env.PROJECT_DIRECTORY_PATH }}\bin\Release\netcoreapp3.1\" -dest:contentPath="${{ env.WEBSITE_CONTENT_PATH }}",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}/msdeploy.axd?site=${{ env.IIS_WEBSITE_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",authtype="Basic"'
+    # - name: Start Application Pool
+    #   shell: cmd
+    #   run: '"C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:recycleApp -dest:recycleApp="${{ env.RECYCLE_APP_NAME }}",recycleMode="StartAppPool",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}/msdeploy.axd?site=${{ env.IIS_WEBSITE_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",AuthType="Basic"'
+    # "C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:contentPath="%CD%\${{ env.PROJECT_DIRECTORY_PATH }}\bin\Release\netcoreapp3.1\" -dest:contentPath="${{ env.WEBSITE_CONTENT_PATH }}",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}/msdeploy.axd?site=${{ env.IIS_WEBSITE_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",authtype="Basic"
+    # 'C:\Program Files (x86)\IIS\Microsoft Web Deploy V3\msdeploy.exe'

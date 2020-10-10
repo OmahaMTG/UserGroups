@@ -1,0 +1,8 @@
+
+Creating a new migration
+- ensure .net ef tools 3.1 is installed 
+- dotnet tool update dotnet-ef --version 3.1.0 --tool-path ./eftools/
+
+Run the GenMigration*.bat 'migration name' for the context you want to update.  
+
+https://github.com/dotnet/sdk/issues/9910
