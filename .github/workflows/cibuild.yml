@@ -15,36 +15,36 @@ jobs:
   build:
     runs-on: windows-2019
 
-    steps:
-      - uses: actions/checkout@v1
+#   steps:
+#     - uses: actions/checkout@v1
+#
+#     - name: Setup .NET Core
+#       uses: actions/setup-dotnet@v1
+#       with:
+#         dotnet-version: 3.1.101
+#
+#     - name: Setup Node
+#       uses: actions/setup-node@v1.1.0
+#
+     #- name: npm install, build, and publish
+     #  working-directory: ./src/omaha-mtg-admin
+     #  run: |
+     #    npm install
+     #    npm run build
+     #    npm run publish
 
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 3.1.101
+    # - uses: microsoft/variable-substitution@v1
+    #   with:
+    #     files: "./src/OmahaMtg.WebUi/appsettings.json"
+    #   env:
+    #     ConnectionStrings.DefaultConnection: ${{ secrets.DB_CONNECTION }}
+    #     EmailConfig.MailGunDomain: ${{ secrets.MAILGUN_DOMAIN }}
+    #     EmailConfig.MailGunApiKey: ${{ secrets.MAILGUN_API_KEY }}
+    #     EmailConfig.SMTPServer: ${{ secrets.SMTPServer }}
+    #      EmailConfig.SMTPPort: ${{ secrets.SMTPPort }}
 
-      - name: Setup Node
-        uses: actions/setup-node@v1.1.0
-
-      - name: npm install, build, and publish
-        working-directory: ./src/omaha-mtg-admin
-        run: |
-          npm install
-          npm run build
-          npm run publish
-
-      - uses: microsoft/variable-substitution@v1
-        with:
-          files: "./src/OmahaMtg.WebUi/appsettings.json"
-        env:
-          ConnectionStrings.DefaultConnection: ${{ secrets.DB_CONNECTION }}
-          EmailConfig.MailGunDomain: ${{ secrets.MAILGUN_DOMAIN }}
-          EmailConfig.MailGunApiKey: ${{ secrets.MAILGUN_API_KEY }}
-          EmailConfig.SMTPServer: ${{ secrets.SMTPServer }}
-          EmailConfig.SMTPPort: ${{ secrets.SMTPPort }}
-
-      - name: publish with dotnet
-        run: dotnet publish ./src/OmahaMtg.WebUi/OmahaMtg.WebUi.csproj -c Release /p:PublishProfile=CustomProfile /p:Password=${{ secrets.DISCOUNT_ASP_PASSWORD }} /p:UserName=${{ secrets.DISCOUNT_ASP_USER }}
+    #  - name: publish with dotnet
+    #    run: dotnet publish ./src/OmahaMtg.WebUi/OmahaMtg.WebUi.csproj -c Release /p:PublishProfile=CustomProfile /p:Password=${{ secrets.DISCOUNT_ASP_PASSWORD }} /p:UserName=${{ secrets.DISCOUNT_ASP_USER }}
     # - name: 'Deploy to Azure WebApp'
     #   uses: azure/webapps-deploy@v1
     #   with:
