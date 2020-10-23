@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UserGroups.Application.Common.Models;
 using UserGroups.Application.UserGroups.Meetings.Commands;
@@ -28,6 +29,25 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
             VimeoId = "1234",
 
         };
+
+        private async Task<CreateMeetingCommand> SetupTestData()
+        {
+            var host = await CreateTestHost();
+
+            var testCommand = _command;
+            testCommand.MeetingHostId = host.Id;
+
+            var firstSponsor = CreateTestSponsor();
+            var secondSponsor = CreateTestSponsor();
+
+            testCommand.MeetingSponsors = new List<CreateMeetingCommand.MeetingSponsor>()
+            {
+                new CreateMeetingCommand.MeetingSponsor(){SponsorId = firstSponsor.Id, Body = "First Sponsor Body"},
+                new CreateMeetingCommand.MeetingSponsor(){SponsorId = secondSponsor.Id, Body = "Second Sponsor Body"}
+            };
+
+            return testCommand;
+        }
 
         [Test]
         public async Task ShouldCreateTheMeeting()
@@ -62,27 +82,21 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
         {
             SetRoles(new List<ApplicationRoles> { ApplicationRoles.Admin });
 
-            var host = await CreateTestHost();
-
-            var testCommand = _command;
-            testCommand.MeetingHostId = host.Id;
-
-            var firstSponsor = CreateTestSponsor();
-            var secondSponsor = CreateTestSponsor();
-
-            testCommand.MeetingSponsors = new List<CreateMeetingCommand.MeetingSponsor>()
-            {
-                new CreateMeetingCommand.MeetingSponsor(){SponsorId = firstSponsor.Id, Body = "First Sponsor Body"},
-                new CreateMeetingCommand.MeetingSponsor(){SponsorId = firstSponsor.Id, Body = "Second Sponsor Body"}
-            };
+            var testCommand = await SetupTestData();
 
             var createdId = await SendAsync(testCommand);
 
-            var dbMeetingSponsors = await FindAllAsync<MeetingSponsor>();
+            var dbMeetingSponsors = (await FindAllAsync<MeetingSponsor>()).ToArray();
 
+            dbMeetingSponsors
+                .Should().Contain(w => w.MeetingId == createdId && w.SponsorId == testCommand.MeetingSponsors.First().SponsorId)
+                .Which.MeetingSponsorBody.Should()
+                .Be(testCommand.MeetingSponsors.First().Body);
 
-
-
+            dbMeetingSponsors
+                .Should().Contain(w => w.MeetingId == createdId && w.SponsorId == testCommand.MeetingSponsors.Skip(1).First().SponsorId)
+                .Which.MeetingSponsorBody.Should()
+                .Be(testCommand.MeetingSponsors.Skip(1).First().Body);
 
         }
 

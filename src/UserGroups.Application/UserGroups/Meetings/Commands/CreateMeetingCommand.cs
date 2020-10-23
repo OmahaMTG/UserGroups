@@ -81,7 +81,7 @@ namespace UserGroups.Application.UserGroups.Meetings.Commands
                 Title = request.Title,
                 StartTime = request.StartTime,
                 MeetingHostId = request.MeetingHostId,
-                //     MeetingSponsors = request.MeetingSponsors?.Select(ms => new MeetingSponsor { SponsorId = ms.SponsorId, MeetingSponsorBody = ms.Body }),
+                MeetingSponsors = request.MeetingSponsors?.Select(ms => new MeetingSponsor { SponsorId = ms.SponsorId, MeetingSponsorBody = ms.Body }).ToList(),
                 //    Presentations = request.MeetingPresentations?.Select(ToPresentationData)
             };
 
