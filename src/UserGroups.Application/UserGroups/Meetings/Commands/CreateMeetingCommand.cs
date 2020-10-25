@@ -1,15 +1,17 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using UserGroups.Application.Common.Behaviours;
 using UserGroups.Application.Common.Interfaces;
+using UserGroups.Application.Common.Models;
 using UserGroups.Domain.Entities;
 
 namespace UserGroups.Application.UserGroups.Meetings.Commands
 {
+    [Authorization(ApplicationRoles.Admin)]
     public class CreateMeetingCommand : IRequest<int>
     {
         public CreateMeetingCommand()
@@ -57,12 +59,10 @@ namespace UserGroups.Application.UserGroups.Meetings.Commands
     internal class CreateMeetingCommandHandler : IRequestHandler<CreateMeetingCommand, int>
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public CreateMeetingCommandHandler(IApplicationDbContext dbContext, IMapper mapper)
+        public CreateMeetingCommandHandler(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public async Task<int> Handle(CreateMeetingCommand request, CancellationToken cancellationToken)
@@ -81,8 +81,8 @@ namespace UserGroups.Application.UserGroups.Meetings.Commands
                 Title = request.Title,
                 StartTime = request.StartTime,
                 MeetingHostId = request.MeetingHostId,
-                //     MeetingSponsors = request.MeetingSponsors?.Select(ms => new MeetingSponsor { SponsorId = ms.SponsorId, MeetingSponsorBody = ms.Body }),
-                //    Presentations = request.MeetingPresentations?.Select(ToPresentationData)
+                MeetingSponsors = request.MeetingSponsors?.Select(ms => new MeetingSponsor { SponsorId = ms.SponsorId, MeetingSponsorBody = ms.Body }).ToList(),
+                Presentations = request.MeetingPresentations?.Select(ToPresentationData).ToList()
             };
 
             await _dbContext.Meetings.AddAsync(newDbMeeting, cancellationToken);

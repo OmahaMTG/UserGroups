@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace UserGroups.Application.IntegrationTests
 {
@@ -7,8 +7,8 @@ namespace UserGroups.Application.IntegrationTests
 
     public class TestBase
     {
-        [SetUp]
-        public async Task TestSetUp()
+        [TearDown]
+        public async Task Cleanup()
         {
             await ResetState();
         }

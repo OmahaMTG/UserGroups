@@ -119,6 +119,16 @@ namespace UserGroups.Application.IntegrationTests
             return await context.Set<TEntity>().ToListAsync();
         }
 
+        public static async Task<IEnumerable<TEntity>> FindAllAsync<TEntity>(string include)
+            where TEntity : class
+        {
+            using var scope = _scopeFactory.CreateScope();
+
+            var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
+
+            return await context.Set<TEntity>().Include(include).ToListAsync();
+        }
+
 
         public static async Task<TEntity> AddAsync<TEntity>(TEntity entity)
             where TEntity : class
