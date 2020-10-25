@@ -136,6 +136,25 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
             }
         };
 
+        private async Task<CreateMeetingCommand> SetupTestData()
+        {
+            var host = await CreateTestHost();
+
+            var testCommand = _command;
+            testCommand.MeetingHostId = host.Id;
+
+            var firstSponsor = CreateTestSponsor();
+            var secondSponsor = CreateTestSponsor();
+
+            testCommand.MeetingSponsors = new List<CreateMeetingCommand.MeetingSponsor>()
+            {
+                new CreateMeetingCommand.MeetingSponsor(){SponsorId = firstSponsor.Id, Body = "First Sponsor Body"},
+                new CreateMeetingCommand.MeetingSponsor(){SponsorId = secondSponsor.Id, Body = "Second Sponsor Body"}
+            };
+
+            return testCommand;
+        }
+
         [Test]
         public async Task ShouldCreateTheMeeting()
         {
