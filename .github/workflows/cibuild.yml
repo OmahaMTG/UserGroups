@@ -29,7 +29,7 @@ jobs:
         run: dotnet test --collect:"XPlat Code Coverage"
 
       - name: Generate Coverage Report
-        run: ./tools/reportgenerator --reports:**/coverage.cobertura.xml --targetdir:coveragereport -reporttypes:lcov
+        run: dotnet tool run reportgenerator --reports:**/coverage.cobertura.xml --targetdir:coveragereport -reporttypes:lcov
 
     # - name: Coveralls GitHub Action
     #   uses: coverallsapp/github-action@v1.1.2
