@@ -11,23 +11,23 @@ jobs:
   build:
     runs-on: windows-2019
 
-  steps:
-    - name: Restore .NET Tools
-      run: dotnet tool restore
+    steps:
+      - name: Restore .NET Tools
+        run: dotnet tool restore
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.101
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
 
-    - name: Setup Node
-      uses: actions/setup-node@v1.1.0
+      - name: Setup Node
+        uses: actions/setup-node@v1.1.0
 
-    - name: Test .NET Code
-      run: dotnet test --collect:"XPlat Code Coverage"
+      - name: Test .NET Code
+        run: dotnet test --collect:"XPlat Code Coverage"
 
-    - name: Generate Coverage Report
-      run: reportgenerator --reports:**/coverage.cobertura.xml --targetdir:coveragereport -reporttypes:lcov
+      - name: Generate Coverage Report
+        run: reportgenerator --reports:**/coverage.cobertura.xml --targetdir:coveragereport -reporttypes:lcov
 
     # - name: Coveralls GitHub Action
     #   uses: coverallsapp/github-action@v1.1.2
