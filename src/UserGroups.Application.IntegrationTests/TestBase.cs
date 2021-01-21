@@ -7,6 +7,12 @@ namespace UserGroups.Application.IntegrationTests
 
     public class TestBase
     {
+        [SetUp]
+        public async Task Setup()
+        {
+            await ResetState();
+        }
+
         [TearDown]
         public async Task Cleanup()
         {
