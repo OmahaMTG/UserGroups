@@ -82,6 +82,7 @@ namespace UserGroups.Application.IntegrationTests
         {
             await _checkpoint.Reset(_configuration.GetConnectionString("DefaultConnection"));
             //     _currentUserId = null;
+
             _roles = new List<ApplicationRoles>();
         }
 
