@@ -22,8 +22,8 @@ jobs:
         with:
           dotnet-version: 3.1.101
 
-      - name: Setup Node
-        uses: actions/setup-node@v1.1.0
+   #   - name: Setup Node
+   #     uses: actions/setup-node@v1.1.0
 
       - name: Test .NET Code
         run: dotnet test --collect:"XPlat Code Coverage"
