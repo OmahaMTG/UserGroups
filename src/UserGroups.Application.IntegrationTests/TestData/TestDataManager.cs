@@ -59,7 +59,7 @@ namespace UserGroups.Application.IntegrationTests.TestData
                 .RuleFor(h => h.Title, t => t.Hacker.Phrase())
                 .RuleFor(h => h.VimeoId, m => m.Random.Hash())
                 .RuleFor(h => h.PresentationPresenters,
-                    presenters.Select(s => new PresentationPresenter() { Presenter = s }))
+                    presenters.Select(s => new PresentationPresenter() { PresenterId = s.Id }).ToList())
                 .Generate();
 
         }
@@ -78,9 +78,9 @@ namespace UserGroups.Application.IntegrationTests.TestData
                     .RuleFor(h => h.IsDraft, isDraft)
                     .RuleFor(h => h.MaxRsvp, maxRsvp)
                     .RuleFor(h => h.AllowRsvp, allowRsvp)
-                    .RuleFor(m => m.MeetingSponsors, ms => sponsors.Select(s => new MeetingSponsor() { Sponsor = s, MeetingSponsorBody = ms.Lorem.Paragraph() }))
-                    .RuleFor(m => m.Presentations, presentations)
-                    .RuleFor(m => m.MeetingHostId, host.Id)
+                    .RuleFor(m => m.MeetingSponsors, ms => sponsors.Select(s => new MeetingSponsor() { SponsorId = s.Id, MeetingSponsorBody = ms.Lorem.Paragraph() }).ToList())
+                    .RuleFor(m => m.Presentations, presentations.ToList())
+                    .RuleFor(m => m.MeetingHostId, b => host?.Id)
                     .RuleFor(m => m.HostMeetingBody, f => f.Lorem.Paragraph())
                     .RuleFor(h => h.PublishStartTime, m => isFuturePublish ? m.Date.Future() : m.Date.Past())
                     .RuleFor(h => h.StartTime, m => isPastEvent ? m.Date.Past() : m.Date.Future())
