@@ -15,6 +15,9 @@
 
   <ItemGroup>
     <Folder Include="UserGroups\MediaLibrary\" />
+    <Folder Include="UserGroups\MeetingSponsors\" />
+    <Folder Include="UserGroups\Presentations\" />
+    <Folder Include="UserGroups\PresentationPresenters\" />
     <Folder Include="UserGroups\Posts\" />
     <Folder Include="UserGroups\Notification\" />
   </ItemGroup>

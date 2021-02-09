@@ -2,45 +2,18 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UserGroups.Application.Common.Behaviours;
 using UserGroups.Application.Common.Exceptions;
 using UserGroups.Application.Common.Interfaces;
 using UserGroups.Application.Common.Models;
-using UserGroups.Domain.Entities;
 
 namespace UserGroups.Application.UserGroups.Meetings.Commands
 {
     [Authorization(ApplicationRoles.Admin)]
     public class UpdateMeetingCommand : IRequest
     {
-        public UpdateMeetingCommand()
-        {
-            MeetingSponsors = new List<MeetingSponsor>();
-            MeetingPresentations = new List<MeetingPresentation>();
-        }
-        public class MeetingSponsor
-        {
-            public int SponsorId { get; set; }
-            public string Body { get; set; }
-        }
-
-        public class MeetingPresentation
-        {
-            public int? Id { get; set; }
-            public string Title { get; set; }
-            public string Body { get; set; }
-            public string VimeoId { get; set; }
-            public IEnumerable<MeetingPresentationPresenter> MeetingPresentationPresenters { get; set; }
-        }
-
-        public class MeetingPresentationPresenter
-        {
-            public int PresenterId { get; set; }
-            public string Body { get; set; }
-        }
 
         public int Id { get; set; }
         public string Title { get; set; }
@@ -54,10 +27,8 @@ namespace UserGroups.Application.UserGroups.Meetings.Commands
         public bool IsDraft { get; set; }
         public IEnumerable<string> Tags { get; set; }
         public string VimeoId { get; set; }
-        public IList<MeetingSponsor> MeetingSponsors { get; set; }
         public int? MeetingHostId { get; set; }
         public string MeetingHostBody { get; set; }
-        public IList<MeetingPresentation> MeetingPresentations { get; set; }
     }
 
     internal class UpdateMeetingCommandHandler : IRequestHandler<UpdateMeetingCommand>
@@ -93,18 +64,6 @@ namespace UserGroups.Application.UserGroups.Meetings.Commands
             meetingToUpdate.HostMeetingBody = request.MeetingHostBody;
             meetingToUpdate.Title = request.Title;
             meetingToUpdate.VimeoId = request.VimeoId;
-
-            meetingToUpdate.MeetingSponsors = request.MeetingSponsors.Select(ms => new MeetingSponsor()
-            { SponsorId = ms.SponsorId, MeetingSponsorBody = ms.Body }).ToList();
-
-            meetingToUpdate.Presentations = request.MeetingPresentations.Select(mp => new Presentation()
-            {
-                Id = mp.Id ??= 0,
-                Title = mp.Title,
-                Details = mp.Body,
-                VimeoId = mp.VimeoId
-            }).ToList();
-
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

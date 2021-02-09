@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UserGroups.Application.Common.Behaviours;
@@ -14,30 +13,6 @@ namespace UserGroups.Application.UserGroups.Meetings.Commands
     [Authorization(ApplicationRoles.Admin)]
     public class CreateMeetingCommand : IRequest<int>
     {
-        public CreateMeetingCommand()
-        {
-            MeetingSponsors = new List<MeetingSponsor>();
-            MeetingPresentations = new List<MeetingPresentation>();
-        }
-        public class MeetingSponsor
-        {
-            public int SponsorId { get; set; }
-            public string Body { get; set; }
-        }
-
-        public class MeetingPresentation
-        {
-            public string Title { get; set; }
-            public string Body { get; set; }
-            public string VimeoId { get; set; }
-            public IEnumerable<MeetingPresentationPresenter> MeetingPresentationPresenters { get; set; }
-        }
-
-        public class MeetingPresentationPresenter
-        {
-            public int PresenterId { get; set; }
-            public string Body { get; set; }
-        }
 
         public string Title { get; set; }
         public DateTime? PublishStartTime { get; set; }
@@ -50,10 +25,9 @@ namespace UserGroups.Application.UserGroups.Meetings.Commands
         public bool IsDraft { get; set; }
         public IEnumerable<string> Tags { get; set; }
         public string VimeoId { get; set; }
-        public IList<MeetingSponsor> MeetingSponsors { get; set; }
         public int? MeetingHostId { get; set; }
         public string MeetingHostBody { get; set; }
-        public IList<MeetingPresentation> MeetingPresentations { get; set; }
+
     }
 
     internal class CreateMeetingCommandHandler : IRequestHandler<CreateMeetingCommand, int>
@@ -72,7 +46,6 @@ namespace UserGroups.Application.UserGroups.Meetings.Commands
                 AllowRsvp = request.AllowRsvp,
                 EndTime = request.EndTime,
                 Footer = request.Footer,
-                HostMeetingBody = request.MeetingHostBody,
                 Intro = request.Intro,
                 IsDraft = request.IsDraft,
                 VimeoId = request.VimeoId,
@@ -81,8 +54,7 @@ namespace UserGroups.Application.UserGroups.Meetings.Commands
                 Title = request.Title,
                 StartTime = request.StartTime,
                 MeetingHostId = request.MeetingHostId,
-                MeetingSponsors = request.MeetingSponsors?.Select(ms => new MeetingSponsor { SponsorId = ms.SponsorId, MeetingSponsorBody = ms.Body }).ToList(),
-                Presentations = request.MeetingPresentations?.Select(ToPresentationData).ToList()
+                HostMeetingBody = request.MeetingHostBody
             };
 
             await _dbContext.Meetings.AddAsync(newDbMeeting, cancellationToken);
@@ -91,24 +63,5 @@ namespace UserGroups.Application.UserGroups.Meetings.Commands
             return newDbMeeting.Id;
         }
 
-        private static Presentation ToPresentationData(CreateMeetingCommand.MeetingPresentation meeting)
-        {
-            return new Presentation()
-            {
-                VimeoId = meeting.VimeoId,
-                Details = meeting.Body,
-                Title = meeting.Title,
-                PresentationPresenters = meeting.MeetingPresentationPresenters?.Select(ToPresentationPresenterData).ToList()
-            };
-        }
-
-        private static PresentationPresenter ToPresentationPresenterData(CreateMeetingCommand.MeetingPresentationPresenter presenter)
-        {
-            return new PresentationPresenter()
-            {
-                PresenterId = presenter.PresenterId,
-                PresenterPresentationBody = presenter.Body
-            };
-        }
     }
 }

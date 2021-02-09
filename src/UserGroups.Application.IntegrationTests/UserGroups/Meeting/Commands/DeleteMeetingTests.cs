@@ -6,7 +6,6 @@ using UserGroups.Application.Common.Exceptions;
 using UserGroups.Application.Common.Models;
 using UserGroups.Application.IntegrationTests.TestData;
 using UserGroups.Application.UserGroups.Meetings.Commands;
-using UserGroups.Domain.Entities;
 
 namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
 {
@@ -21,7 +20,7 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
             SetRoles(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var testHost = await CreateTestHost();
 
-            var testMeeting = await CreateTestMeeting(new List<Presentation>(), new List<Sponsor>(), testHost);
+            var testMeeting = await CreateTestMeeting();
 
             var result = await SendAsync(new DeleteMeetingCommand()
             {
@@ -41,7 +40,7 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
             SetRoles(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var testHost = await CreateTestHost();
 
-            var testMeeting = await CreateTestMeeting(new List<Presentation>(), new List<Sponsor>(), testHost);
+            var testMeeting = await CreateTestMeeting();
 
 
             var result = await SendAsync(new DeleteMeetingCommand()

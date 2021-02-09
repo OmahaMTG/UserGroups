@@ -64,8 +64,7 @@ namespace UserGroups.Application.IntegrationTests.TestData
 
         }
 
-        public static async Task<Meeting> CreateTestMeeting(IEnumerable<Presentation> presentations, IEnumerable<Sponsor> sponsors,
-                                                            Host host, bool isDeleted = false, bool isDraft = false,
+        public static async Task<Meeting> CreateTestMeeting(bool isDeleted = false, bool isDraft = false,
                                                             int maxRsvp = 0, bool allowRsvp = true, bool isPastEvent = false, bool isFuturePublish = false)
         {
 
@@ -78,10 +77,6 @@ namespace UserGroups.Application.IntegrationTests.TestData
                     .RuleFor(h => h.IsDraft, isDraft)
                     .RuleFor(h => h.MaxRsvp, maxRsvp)
                     .RuleFor(h => h.AllowRsvp, allowRsvp)
-                    .RuleFor(m => m.MeetingSponsors, ms => sponsors.Select(s => new MeetingSponsor() { SponsorId = s.Id, MeetingSponsorBody = ms.Lorem.Paragraph() }).ToList())
-                    .RuleFor(m => m.Presentations, presentations.ToList())
-                    .RuleFor(m => m.MeetingHostId, b => host?.Id)
-                    .RuleFor(m => m.HostMeetingBody, f => f.Lorem.Paragraph())
                     .RuleFor(h => h.PublishStartTime, m => isFuturePublish ? m.Date.Future() : m.Date.Past())
                     .RuleFor(h => h.StartTime, m => isPastEvent ? m.Date.Past() : m.Date.Future())
                     .RuleFor(h => h.EndTime, m => isPastEvent ? m.Date.Past() : m.Date.Future())
