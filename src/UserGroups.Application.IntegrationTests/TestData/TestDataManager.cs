@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UserGroups.Domain.Entities;
+using UserGroups.Infrastructure.Persistence;
 
 namespace UserGroups.Application.IntegrationTests.TestData
 {
@@ -84,7 +85,20 @@ namespace UserGroups.Application.IntegrationTests.TestData
             );
         }
 
+        public static async Task<OmahaMtgUser> CreateTestUser()
+        {
+            return await AddAsync(
+                new Faker<OmahaMtgUser>()
+                    .RuleFor(u => u.FirstName, f => f.Person.FirstName)
+                    .RuleFor(u => u.LastName, f => f.Person.LastName)
+                    .Generate()
+            );
+        }
 
+        public static async Task AddMeetingRsvp(string userId, int meetingId)
+        {
+            await AddAsync<MeetingRsvp>(new MeetingRsvp() { MeetingId = meetingId, UserId = userId });
+        }
 
 
 

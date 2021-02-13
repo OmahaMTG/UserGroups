@@ -5,21 +5,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="UserGroups\MediaLibrary\**" />
+    <Compile Remove="UserGroups\Notification\**" />
+    <Compile Remove="UserGroups\Posts\**" />
+    <EmbeddedResource Remove="UserGroups\MediaLibrary\**" />
+    <EmbeddedResource Remove="UserGroups\Notification\**" />
+    <EmbeddedResource Remove="UserGroups\Posts\**" />
+    <None Remove="UserGroups\MediaLibrary\**" />
+    <None Remove="UserGroups\Notification\**" />
+    <None Remove="UserGroups\Posts\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="FluentValidation" Version="9.0.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="9.0.1" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.6" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="UserGroups\MediaLibrary\" />
-    <Folder Include="UserGroups\MeetingSponsors\" />
-    <Folder Include="UserGroups\Presentations\" />
-    <Folder Include="UserGroups\PresentationPresenters\" />
-    <Folder Include="UserGroups\Posts\" />
-    <Folder Include="UserGroups\Notification\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -23,7 +23,6 @@ namespace UserGroups.Application.UserGroups.Meetings.Queries
         public IEnumerable<string> Tags { get; set; }
         public string VimeoId { get; set; }
         public int? MeetingHostId { get; set; }
-        public string MeetingHostName { get; set; }
         public string HostMeetingBody { get; set; }
         public MeetingMeta Meta { get; set; }
 
@@ -31,8 +30,8 @@ namespace UserGroups.Application.UserGroups.Meetings.Queries
         {
             profile.CreateMap<Meeting, MeetingDto>()
                 .ForMember(m => m.Tags, opt => opt.MapFrom(s => s.MeetingTags.Select(mt => mt.Tag.Name)))
-                // .ForMember(m => m.Meta, opt => opt.MapFrom(s => s.MeetingRsvps.Count()));
-                .ForMember(m => m.Meta, opt => opt.Ignore());
+                 .ForMember(m => m.Meta, opt => opt.MapFrom(s => new MeetingMeta() { RsvpCount = s.MeetingRsvps.Count() }));
+            // .ForMember(m => m.Meta, opt => opt.Ignore());
 
         }
     }
