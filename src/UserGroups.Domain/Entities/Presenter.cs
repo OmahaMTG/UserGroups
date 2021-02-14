@@ -11,6 +11,7 @@ namespace UserGroups.Domain.Entities
         public string ContactInfo { get; set; }
 
         public string OmahaMtgUserId { get; set; }
+        public OmahaMtgUser User { get; set; }
         public ICollection<PresentationPresenter> PresentationPresenters { get; set; }
         public bool IsDeleted { get; set; }
     }

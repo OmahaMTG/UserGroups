@@ -1,6 +1,6 @@
-﻿using System.Threading;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using UserGroups.Domain.Entities;
 
 namespace UserGroups.Application.Common.Interfaces
@@ -30,6 +30,7 @@ namespace UserGroups.Application.Common.Interfaces
         DbSet<Sponsor> Sponsors { get; set; }
 
         DbSet<Tag> Tags { get; set; }
+        DbSet<OmahaMtgUser> Users { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }

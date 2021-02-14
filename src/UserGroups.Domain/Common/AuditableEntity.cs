@@ -1,4 +1,5 @@
 ﻿using System;
+using UserGroups.Domain.Entities;
 
 namespace UserGroups.Domain.Common
 {
@@ -6,7 +7,9 @@ namespace UserGroups.Domain.Common
     {
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
-        public string CreatedByUser { get; set; }
-        public string UpdatedByUser { get; set; }
+        public string CreatedByUserId { get; set; }
+        public string UpdatedByUserId { get; set; }
+        public OmahaMtgUser CreatedByUser { get; set; }
+        public OmahaMtgUser UpdatedByUser { get; set; }
     }
 }

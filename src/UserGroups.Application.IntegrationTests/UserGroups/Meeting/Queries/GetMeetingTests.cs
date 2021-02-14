@@ -4,25 +4,22 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UserGroups.Application.Common.Exceptions;
 using UserGroups.Application.Common.Models;
-using UserGroups.Application.IntegrationTests.TestData;
 using UserGroups.Application.UserGroups.Meetings.Queries;
 
 namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Queries
 {
-    using static TestDataManager;
-    using static Testing;
-
     public class GetMeetingTests : TestBase
     {
-
-
         [Test]
         public async Task ShouldReturnTheMeeting()
         {
-            SetRoles(new List<ApplicationRoles> { ApplicationRoles.Admin });
-            var testMeeting = await CreateTestMeeting();
+            var arrange = new Arrange();
+            await arrange.SetArrangeUser();
+            var testMeeting = await arrange.CreateTestMeeting();
 
-            var result = await SendAsync(new GetMeetingQuery() { Id = testMeeting.Id });
+            var act = new Act();
+            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var result = await act.SendAsync(new GetMeetingQuery() { Id = testMeeting.Id });
 
             result.Id.Should().Be(testMeeting.Id);
             result.Title.Should().Be(testMeeting.Title);
@@ -41,19 +38,20 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Queries
             result.HostMeetingBody.Should().Be(testMeeting.HostMeetingBody);
         }
 
-        //test meeting host
-        //test RSVP counts
-
         [Test]
         public async Task ShouldReturnTheRsvpCount()
         {
-            var testMeeting = await CreateTestMeeting();
-            var testUser1 = await CreateTestUser();
-            var testUser2 = await CreateTestUser();
-            await AddMeetingRsvp(testUser1.Id, testMeeting.Id);
-            await AddMeetingRsvp(testUser2.Id, testMeeting.Id);
+            var arrange = new Arrange();
+            await arrange.SetArrangeUser();
+            var testMeeting = await arrange.CreateTestMeeting();
+            var testUser1 = await arrange.CreateTestUser(new List<ApplicationRoles>() { ApplicationRoles.User });
+            var testUser2 = await arrange.CreateTestUser(new List<ApplicationRoles>() { ApplicationRoles.User });
+            await arrange.CreateTestMeetingRsvp(testUser1.Id, testMeeting.Id);
+            await arrange.CreateTestMeetingRsvp(testUser2.Id, testMeeting.Id);
 
-            var result = await SendAsync(new GetMeetingQuery() { Id = testMeeting.Id });
+            var act = new Act();
+            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var result = await act.SendAsync(new GetMeetingQuery() { Id = testMeeting.Id });
 
             result.Meta.RsvpCount.Should().Be(2);
         }
@@ -62,19 +60,21 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Queries
 
 
         [Test]
-        public void ShouldThrowIfMeetingDoesNotExist()
+        public async Task ShouldThrowIfMeetingDoesNotExist()
         {
-            SetRoles(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act();
+            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
             FluentActions.Invoking(() =>
-                SendAsync(new GetMeetingQuery() { Id = 1 })).Should().Throw<NotFoundException>();
+                act.SendAsync(new GetMeetingQuery() { Id = 1 })).Should().Throw<NotFoundException>();
         }
 
         [Test]
-        public void ShouldThrowIfUserIsNotHostAdmin()
+        public async Task ShouldThrowIfUserIsNotHostAdmin()
         {
+            var act = new Act();
+            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
             var command = new GetMeetingQuery { Id = 1 };
-
-            FluentActions.Invoking(() => SendAsync(command)).Should().Throw<NotAuthorizedException>();
+            FluentActions.Invoking(() => act.SendAsync(command)).Should().Throw<NotAuthorizedException>();
         }
     }
 }

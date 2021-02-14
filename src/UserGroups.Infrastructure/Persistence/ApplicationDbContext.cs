@@ -1,24 +1,31 @@
-﻿using System.Linq;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using UserGroups.Application.Common.Interfaces;
+using UserGroups.Application.Common.Models;
 using UserGroups.Domain.Common;
 using UserGroups.Domain.Entities;
 
 namespace UserGroups.Infrastructure.Persistence
 {
-    public class ApplicationDbContext : DbContext, IApplicationDbContext
+    public class ApplicationDbContext : IdentityDbContext<OmahaMtgUser>, IApplicationDbContext
     {
         private readonly ITimeUtility _timeUtility;
         private readonly IUserContext _userContext;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public ApplicationDbContext(DbContextOptions options, IUserContext userContext, ITimeUtility timeUtility) :
+        public ApplicationDbContext(DbContextOptions options, IUserContext userContext, ITimeUtility timeUtility, ILoggerFactory loggerFactory) :
             base(options)
         {
             _userContext = userContext;
             _timeUtility = timeUtility;
+            _loggerFactory = loggerFactory;
         }
 
         public DbSet<Host> Hosts { get; set; }
@@ -34,11 +41,49 @@ namespace UserGroups.Infrastructure.Persistence
         public DbSet<Sponsor> Sponsors { get; set; }
         public DbSet<Tag> Tags { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+
+            optionsBuilder.UseLoggerFactory(_loggerFactory);
+        }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
             base.OnModelCreating(builder);
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            //builder.Entity<IdentityRole>().HasData(new IdentityRole
+            //{
+            //    Id = "admin",
+            //    Name = "admin",
+            //    NormalizedName = "admin"
+            //});
+
+
+            //https://stackoverflow.com/questions/50375357/how-to-create-a-table-corresponding-to-enum-in-ef-core-code-first
+            //builder
+            //    .Entity<OmahaMtgUser>()
+            //    .Property(e => e.role)
+            //    .HasConversion<int>();
+
+            //builder
+            //    .Entity<WineVariant>()
+            //    .Property(e => e.WineVariantId)
+            //    .HasConversion<int>();
+
+            builder
+                .Entity<IdentityRole>().HasData(
+                    Enum.GetValues(typeof(ApplicationRoles))
+                        .Cast<ApplicationRoles>()
+                        .Select(e => new IdentityRole()
+                        {
+                            Id = e.ToString(),
+                            Name = e.ToString(),
+                            NormalizedName = e.ToString()
+                        })
+                );
+
+
         }
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
@@ -58,11 +103,11 @@ namespace UserGroups.Infrastructure.Persistence
                 {
                     if (entry.State == EntityState.Added)
                     {
-                        entity.CreatedByUser = currentUserId;
+                        entity.CreatedByUserId = currentUserId;
                         entity.CreatedDate = _timeUtility.GetCurrentSystemTime;
                     }
 
-                    entity.UpdatedByUser = currentUserId;
+                    entity.UpdatedByUserId = currentUserId;
                     entity.UpdatedDate = _timeUtility.GetCurrentSystemTime;
                 }
 
@@ -86,10 +131,10 @@ namespace UserGroups.Infrastructure.Persistence
                 if (entry.Entity is AuditableEntity entity)
                 {
                     if (entry.State == EntityState.Added)
-                        entity.CreatedByUser = currentUserId;
+                        entity.CreatedByUserId = currentUserId;
                     //   entity.CreatedDate = now;
 
-                    entity.UpdatedByUser = currentUserId;
+                    entity.UpdatedByUserId = currentUserId;
                     // entity.UpdatedDate = now;
                 }
 

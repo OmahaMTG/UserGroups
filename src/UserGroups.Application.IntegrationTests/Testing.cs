@@ -1,7 +1,7 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using Respawn;
@@ -24,9 +24,9 @@ namespace UserGroups.Application.IntegrationTests
         private static Checkpoint _checkpoint;
 
         private static readonly bool _isLoggedIn = true;
-        private static readonly string _userId = "UserId";
-        private static readonly string _userName = "UserName";
-        private static List<ApplicationRoles> _roles = new List<ApplicationRoles> { ApplicationRoles.Admin };
+        private static string _userId = "UserId";
+        private static string _userName = "UserName";
+        private static IEnumerable<ApplicationRoles> _roles = new List<ApplicationRoles>();
 
 
         [OneTimeSetUp]
@@ -39,6 +39,11 @@ namespace UserGroups.Application.IntegrationTests
             _configuration = builder.Build();
 
             var services = new ServiceCollection();
+            services.AddLogging(logging =>
+            {
+                logging.AddConsole();
+                logging.AddDebug();
+            });
             services.AddInfrastructure(_configuration);
             services.AddApplication(_configuration);
 
@@ -63,8 +68,20 @@ namespace UserGroups.Application.IntegrationTests
 
             _checkpoint = new Checkpoint
             {
-                TablesToIgnore = new[] { "__EFMigrationsHistory" }
+                TablesToIgnore = new[] { "__EFMigrationsHistory", "AspNetRoles" }
             };
+        }
+
+        public static T GetService<T>()
+        {
+            using var scope = _scopeFactory.CreateScope();
+            return scope.ServiceProvider.GetService<T>();
+        }
+
+        public static void SetCurrentUser(string userId, IEnumerable<ApplicationRoles> roles)
+        {
+            _userId = userId;
+            _roles = roles;
         }
 
 
@@ -75,6 +92,8 @@ namespace UserGroups.Application.IntegrationTests
             var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
+
+
             //context.Database.Migrate();
         }
 
@@ -84,12 +103,16 @@ namespace UserGroups.Application.IntegrationTests
             //     _currentUserId = null;
 
             _roles = new List<ApplicationRoles>();
+            _userId = null;
+            _userName = null;
+
+
         }
 
-        public static void SetRoles(List<ApplicationRoles> roles)
-        {
-            _roles = roles;
-        }
+        //public static void SetRoles(List<ApplicationRoles> roles)
+        //{
+        //    _roles = roles;
+        //}
 
         public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
         {
@@ -100,44 +123,42 @@ namespace UserGroups.Application.IntegrationTests
             return await mediator.Send(request);
         }
 
-        public static async Task<TEntity> FindAsync<TEntity>(params object[] keyValues)
-            where TEntity : class
-        {
-            using var scope = _scopeFactory.CreateScope();
+        //public static async Task<TEntity> FindAsync<TEntity>(params object[] keyValues)
+        //    where TEntity : class
+        //{
+        //    using var scope = _scopeFactory.CreateScope();
 
-            var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
+        //    var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
 
-            return await context.FindAsync<TEntity>(keyValues);
-        }
+        //    return await context.FindAsync<TEntity>(keyValues);
+        //}
 
-        public static async Task<IEnumerable<TEntity>> FindAllAsync<TEntity>()
-            where TEntity : class
-        {
-            using var scope = _scopeFactory.CreateScope();
+        //public static async Task<IEnumerable<TEntity>> FindAllAsync<TEntity>()
+        //    where TEntity : class
+        //{
+        //    using var scope = _scopeFactory.CreateScope();
 
-            var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
+        //    var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
 
-            return await context.Set<TEntity>().ToListAsync();
-        }
+        //    return await context.Set<TEntity>().ToListAsync();
+        //}
 
-        public static async Task<IEnumerable<TEntity>> FindAllAsync<TEntity>(string include)
-            where TEntity : class
-        {
-            using var scope = _scopeFactory.CreateScope();
+        //public static async Task<IEnumerable<TEntity>> FindAllAsync<TEntity>(string include)
+        //    where TEntity : class
+        //{
+        //    using var scope = _scopeFactory.CreateScope();
 
-            var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
+        //    var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
 
-            return await context.Set<TEntity>().Include(include).ToListAsync();
-        }
+        //    return await context.Set<TEntity>().Include(include).ToListAsync();
+        //}
 
 
         public static async Task<TEntity> AddAsync<TEntity>(TEntity entity)
             where TEntity : class
         {
             using var scope = _scopeFactory.CreateScope();
-
             var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-
             await context.AddAsync(entity);
             await context.SaveChangesAsync();
             return entity;
