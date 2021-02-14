@@ -56,9 +56,6 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Queries
             result.Meta.RsvpCount.Should().Be(2);
         }
 
-
-
-
         [Test]
         public async Task ShouldThrowIfMeetingDoesNotExist()
         {

@@ -123,15 +123,13 @@ namespace UserGroups.Application.IntegrationTests
             return await mediator.Send(request);
         }
 
-        //public static async Task<TEntity> FindAsync<TEntity>(params object[] keyValues)
-        //    where TEntity : class
-        //{
-        //    using var scope = _scopeFactory.CreateScope();
-
-        //    var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-
-        //    return await context.FindAsync<TEntity>(keyValues);
-        //}
+        public static async Task<TEntity> FindAsync<TEntity>(params object[] keyValues)
+            where TEntity : class
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
+            return await context.FindAsync<TEntity>(keyValues);
+        }
 
         //public static async Task<IEnumerable<TEntity>> FindAllAsync<TEntity>()
         //    where TEntity : class
