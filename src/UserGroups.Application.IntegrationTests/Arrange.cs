@@ -1,9 +1,12 @@
 ﻿using Bogus;
+using Castle.Core.Internal;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UserGroups.Application.Common.Models;
 using UserGroups.Domain.Entities;
+
+
 
 namespace UserGroups.Application.IntegrationTests
 {
@@ -35,6 +38,18 @@ namespace UserGroups.Application.IntegrationTests
                 new Faker<OmahaMtgUser>()
                     .RuleFor(u => u.FirstName, f => f.Person.FirstName)
                     .RuleFor(u => u.LastName, f => f.Person.LastName)
+                    .Generate()
+            );
+        }
+
+        public async Task<Host> CreateTestHost(string blurb = "", string name = "", bool isDeleted = false)
+        {
+            return await AddAsync(
+                new Faker<Host>()
+                    .RuleFor(h => h.Blurb, b => blurb.IsNullOrEmpty() ? b.Lorem.Paragraph() : blurb)
+                    .RuleFor(h => h.ContactInfo, c => c.Lorem.Paragraph())
+                    .RuleFor(h => h.IsDeleted, d => isDeleted)
+                    .RuleFor(h => h.Name, n => name.IsNullOrEmpty() ? n.Company.CompanyName() : name)
                     .Generate()
             );
         }
