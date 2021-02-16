@@ -11,14 +11,11 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Queries
 
     public class GetHostTests : TestBase
     {
-
-
         [Test]
         public async Task ShouldReturnTheHost()
         {
             var arrange = new Arrange();
             await arrange.SetArrangeUser();
-            var testMeeting = await arrange.CreateTestMeeting();
             var testHost = await arrange.CreateTestHost();
 
             var act = new Act();
@@ -37,7 +34,6 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Queries
         {
             var arrange = new Arrange();
             await arrange.SetArrangeUser();
-            var testMeeting = await arrange.CreateTestMeeting();
 
             var act = new Act();
             await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });

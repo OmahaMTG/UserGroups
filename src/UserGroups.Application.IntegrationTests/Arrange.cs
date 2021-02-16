@@ -42,6 +42,18 @@ namespace UserGroups.Application.IntegrationTests
             );
         }
 
+        public async Task<Presenter> CreateTestPresenter(string bio = "", string name = "", bool isDeleted = false)
+        {
+            return await AddAsync(
+                new Faker<Presenter>()
+                    .RuleFor(h => h.Bio, b => bio.IsNullOrEmpty() ? b.Lorem.Paragraph() : bio)
+                    .RuleFor(h => h.ContactInfo, c => c.Lorem.Paragraph())
+                    .RuleFor(h => h.IsDeleted, d => isDeleted)
+                    .RuleFor(h => h.Name, n => name.IsNullOrEmpty() ? n.Company.CompanyName() : name)
+                    .Generate()
+            );
+        }
+
         public async Task<Host> CreateTestHost(string blurb = "", string name = "", bool isDeleted = false)
         {
             return await AddAsync(

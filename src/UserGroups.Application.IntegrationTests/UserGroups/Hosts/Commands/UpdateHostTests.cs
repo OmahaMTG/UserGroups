@@ -50,7 +50,6 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
         {
             var arrange = new Arrange();
             await arrange.SetArrangeUser();
-            var testMeeting = await arrange.CreateTestHost();
 
             var act = new Act();
             await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });

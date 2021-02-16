@@ -46,7 +46,7 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
         public async Task ShouldThrowIfUserIsNotSponsorAdmin()
         {
             var act = new Act();
-            var user = await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
             FluentActions.Invoking(() => act.SendAsync(_command)).Should().Throw<NotAuthorizedException>();
         }
     }

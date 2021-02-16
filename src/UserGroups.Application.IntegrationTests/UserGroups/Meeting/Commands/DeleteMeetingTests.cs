@@ -21,7 +21,7 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
 
             var act = new Act();
             await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
-            var result = await act.SendAsync(new DeleteMeetingCommand()
+            await act.SendAsync(new DeleteMeetingCommand()
             {
                 HardDelete = true,
                 Id = testMeeting.Id
@@ -41,7 +41,7 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
             var testMeeting = await arrange.CreateTestMeeting();
 
             var act = new Act();
-            var result = await act.SendAsync(new DeleteMeetingCommand()
+            await act.SendAsync(new DeleteMeetingCommand()
             {
                 HardDelete = false,
                 Id = testMeeting.Id

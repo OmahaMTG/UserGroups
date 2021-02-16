@@ -1,81 +1,86 @@
-﻿//using FluentAssertions;
-//using NUnit.Framework;
-//using System.Collections.Generic;
-//using System.Threading.Tasks;
-//using UserGroups.Application.Common.Exceptions;
-//using UserGroups.Application.Common.Models;
-//using UserGroups.Application.IntegrationTests.TestData;
-//using UserGroups.Application.UserGroups.Presenters.Commands;
-//using UserGroups.Domain.Entities;
+﻿using FluentAssertions;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using UserGroups.Application.Common.Exceptions;
+using UserGroups.Application.Common.Models;
+using UserGroups.Application.UserGroups.Presenters.Commands;
+using UserGroups.Domain.Entities;
 
-//namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Commands
-//{
-//    using static TestDataManager;
-//    using static Testing;
-//    public class DeletePresenterTests : TestBase
-//    {
+namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Commands
+{
+    public class DeletePresenterTests : TestBase
+    {
+        [Test]
+        public async Task HardDeleteShouldDeletePresenter()
+        {
+            var arrange = new Arrange();
+            await arrange.SetArrangeUser();
+            var testPresenter = await arrange.CreateTestPresenter();
 
-//        [Test]
-//        public async Task HardDeleteShouldDeletePresenter()
-//        {
-//            SetRoles(new List<ApplicationRoles> { ApplicationRoles.Admin });
-//            var testPresenter = await CreateTestPresenter();
+            var act = new Act();
+            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var result = await act.SendAsync(new DeletePresenterCommand
+            {
+                HardDelete = true,
+                Id = testPresenter.Id
+            });
 
-//            var result = await SendAsync(new DeletePresenterCommand
-//            {
-//                HardDelete = true,
-//                Id = testPresenter.Id
-//            });
+            var assert = new Assert();
+            var dbPresenter = await assert.FindAsync<Presenter>(testPresenter.Id);
 
-//            var dbPresenter = await FindAsync<Presenter>(testPresenter.Id);
+            dbPresenter.Should().BeNull();
+        }
 
-//            dbPresenter.Should().BeNull();
-//        }
+        [Test]
+        public async Task SoftDeleteShouldFlagPresenterAsDeleted()
+        {
+            var arrange = new Arrange();
+            await arrange.SetArrangeUser();
+            var testPresenter = await arrange.CreateTestPresenter();
 
-//        [Test]
-//        public async Task SoftDeleteShouldFlagPresenterAsDeleted()
-//        {
-//            SetRoles(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act();
+            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var result = await act.SendAsync(new DeletePresenterCommand
+            {
+                HardDelete = false,
+                Id = testPresenter.Id
+            });
 
-//            var testPresenter = await CreateTestPresenter();
+            var assert = new Assert();
+            var dbPresenter = await assert.FindAsync<Presenter>(testPresenter.Id);
 
-//            var result = await SendAsync(new DeletePresenterCommand
-//            {
-//                HardDelete = false,
-//                Id = testPresenter.Id
-//            });
-
-//            var dbPresenter = await FindAsync<Presenter>(testPresenter.Id);
-
-//            dbPresenter.Should().NotBeNull();
-
-//            dbPresenter.IsDeleted.Should().BeTrue();
-//        }
+            dbPresenter.Should().NotBeNull();
+            dbPresenter.IsDeleted.Should().BeTrue();
+        }
 
 
-//        [Test]
-//        public void ShouldThrowIfPresenterIdDoesNotExist()
-//        {
-//            SetRoles(new List<ApplicationRoles> { ApplicationRoles.Admin });
-//            var deleteCommand = new DeletePresenterCommand
-//            {
-//                HardDelete = false,
-//                Id = 1
-//            };
+        [Test]
+        public async Task ShouldThrowIfPresenterIdDoesNotExist()
+        {
+            var act = new Act();
+            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var deleteCommand = new DeletePresenterCommand
+            {
+                HardDelete = false,
+                Id = 1
+            };
 
-//            FluentActions.Invoking(() => SendAsync(deleteCommand)).Should().Throw<NotFoundException>();
-//        }
+            FluentActions.Invoking(() => act.SendAsync(deleteCommand)).Should().Throw<NotFoundException>();
+        }
 
-//        [Test]
-//        public void ShouldThrowIfUserIsNotPresenterAdmin()
-//        {
-//            var deleteCommand = new DeletePresenterCommand
-//            {
-//                HardDelete = false,
-//                Id = 1
-//            };
+        [Test]
+        public async Task ShouldThrowIfUserIsNotPresenterAdmin()
+        {
+            var act = new Act();
+            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var deleteCommand = new DeletePresenterCommand
+            {
+                HardDelete = false,
+                Id = 1
+            };
 
-//            FluentActions.Invoking(() => SendAsync(deleteCommand)).Should().Throw<NotAuthorizedException>();
-//        }
-//    }
-//}
+            FluentActions.Invoking(() => act.SendAsync(deleteCommand)).Should().Throw<NotAuthorizedException>();
+        }
+    }
+}
