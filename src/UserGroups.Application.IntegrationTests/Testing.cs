@@ -72,12 +72,6 @@ namespace UserGroups.Application.IntegrationTests
             };
         }
 
-        public static T GetService<T>()
-        {
-            using var scope = _scopeFactory.CreateScope();
-            return scope.ServiceProvider.GetService<T>();
-        }
-
         public static void SetCurrentUser(string userId, IEnumerable<ApplicationRoles> roles)
         {
             _userId = userId;
@@ -92,27 +86,16 @@ namespace UserGroups.Application.IntegrationTests
             var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-
-
-            //context.Database.Migrate();
         }
 
         public static async Task ResetState()
         {
             await _checkpoint.Reset(_configuration.GetConnectionString("DefaultConnection"));
-            //     _currentUserId = null;
 
             _roles = new List<ApplicationRoles>();
             _userId = null;
             _userName = null;
-
-
         }
-
-        //public static void SetRoles(List<ApplicationRoles> roles)
-        //{
-        //    _roles = roles;
-        //}
 
         public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
         {
@@ -130,27 +113,6 @@ namespace UserGroups.Application.IntegrationTests
             var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
             return await context.FindAsync<TEntity>(keyValues);
         }
-
-        //public static async Task<IEnumerable<TEntity>> FindAllAsync<TEntity>()
-        //    where TEntity : class
-        //{
-        //    using var scope = _scopeFactory.CreateScope();
-
-        //    var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-
-        //    return await context.Set<TEntity>().ToListAsync();
-        //}
-
-        //public static async Task<IEnumerable<TEntity>> FindAllAsync<TEntity>(string include)
-        //    where TEntity : class
-        //{
-        //    using var scope = _scopeFactory.CreateScope();
-
-        //    var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-
-        //    return await context.Set<TEntity>().Include(include).ToListAsync();
-        //}
-
 
         public static async Task<TEntity> AddAsync<TEntity>(TEntity entity)
             where TEntity : class

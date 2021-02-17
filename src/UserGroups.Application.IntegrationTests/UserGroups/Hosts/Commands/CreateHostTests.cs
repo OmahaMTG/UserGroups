@@ -24,8 +24,7 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
         [Test]
         public async Task ShouldCreateHost()
         {
-            var act = new Act();
-            var user = await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(_command);
 
             var assert = new Assert();
@@ -37,16 +36,15 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
             created.IsDeleted.Should().Be(_command.IsDeleted);
             created.CreatedDate.Should().BeCloseTo(DateTime.Now, 10000);
             created.UpdatedDate.Should().BeCloseTo(DateTime.Now, 10000);
-            created.CreatedByUserId.Should().Be(user.Id);
-            created.UpdatedByUserId.Should().Be(user.Id);
+            created.CreatedByUserId.Should().Be(act.ActAsUser.Id);
+            created.UpdatedByUserId.Should().Be(act.ActAsUser.Id);
         }
 
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotSponsorAdmin()
+        public void ShouldThrowIfUserIsNotSponsorAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
             FluentActions.Invoking(() => act.SendAsync(_command)).Should().Throw<NotAuthorizedException>();
         }
     }

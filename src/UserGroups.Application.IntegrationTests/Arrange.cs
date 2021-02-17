@@ -10,12 +10,46 @@ using UserGroups.Domain.Entities;
 
 namespace UserGroups.Application.IntegrationTests
 {
+
     using static Testing;
     public class Arrange
     {
+        public OmahaMtgUser ArrangedByUser { get; private set; }
+
+
+        //not thread safe
+        //todo make thread safe
+        public async Task EnsureArrangeUserSet()
+        {
+            if (ArrangedByUser == null)
+            {
+                var user = await AddAsync(
+                                new OmahaMtgUser()
+                                {
+                                    FirstName = "Arrange",
+                                    LastName = "User"
+
+                                });
+
+                await AddAsync(new IdentityUserRole<string>()
+                {
+                    RoleId = ApplicationRoles.Admin.ToString(),
+                    UserId = user.Id
+                });
+
+
+                SetCurrentUser(user.Id, new List<ApplicationRoles>() { ApplicationRoles.Admin });
+
+                ArrangedByUser = user;
+            }
+
+        }
+
+
         public async Task<Meeting> CreateTestMeeting(bool isDeleted = false, bool isDraft = false,
             int maxRsvp = 0, bool allowRsvp = true, bool isPastEvent = false, bool isFuturePublish = false)
         {
+            await EnsureArrangeUserSet();
             return await AddAsync(
                 new Faker<Meeting>()
                     .RuleFor(h => h.Intro, b => b.Lorem.Paragraph())
@@ -34,6 +68,7 @@ namespace UserGroups.Application.IntegrationTests
 
         public async Task<OmahaMtgUser> CreateTestUser(IEnumerable<ApplicationRoles> roles)
         {
+            await EnsureArrangeUserSet();
             return await AddAsync(
                 new Faker<OmahaMtgUser>()
                     .RuleFor(u => u.FirstName, f => f.Person.FirstName)
@@ -44,6 +79,7 @@ namespace UserGroups.Application.IntegrationTests
 
         public async Task<Presenter> CreateTestPresenter(string bio = "", string name = "", bool isDeleted = false)
         {
+            await EnsureArrangeUserSet();
             return await AddAsync(
                 new Faker<Presenter>()
                     .RuleFor(h => h.Bio, b => bio.IsNullOrEmpty() ? b.Lorem.Paragraph() : bio)
@@ -56,6 +92,7 @@ namespace UserGroups.Application.IntegrationTests
 
         public async Task<Host> CreateTestHost(string blurb = "", string name = "", bool isDeleted = false)
         {
+            await EnsureArrangeUserSet();
             return await AddAsync(
                 new Faker<Host>()
                     .RuleFor(h => h.Blurb, b => blurb.IsNullOrEmpty() ? b.Lorem.Paragraph() : blurb)
@@ -69,30 +106,11 @@ namespace UserGroups.Application.IntegrationTests
 
         public async Task CreateTestMeetingRsvp(string userId, int meetingId)
         {
-            await AddAsync<MeetingRsvp>(new MeetingRsvp() { MeetingId = meetingId, UserId = userId });
+            await EnsureArrangeUserSet();
+            await AddAsync(new MeetingRsvp() { MeetingId = meetingId, UserId = userId });
         }
 
-        public async Task<OmahaMtgUser> SetArrangeUser()
-        {
-            var user = await AddAsync<OmahaMtgUser>(
-                new OmahaMtgUser()
-                {
-                    FirstName = "Arrange",
-                    LastName = "User"
 
-                });
-
-            await AddAsync<IdentityUserRole<string>>(new IdentityUserRole<string>()
-            {
-                RoleId = ApplicationRoles.Admin.ToString(),
-                UserId = user.Id
-            });
-
-
-            SetCurrentUser(user.Id, new List<ApplicationRoles>() { ApplicationRoles.Admin });
-
-            return user;
-        }
 
     }
 }

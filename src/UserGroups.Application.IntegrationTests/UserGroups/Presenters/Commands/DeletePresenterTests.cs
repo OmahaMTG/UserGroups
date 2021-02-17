@@ -15,12 +15,10 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Commands
         public async Task HardDeleteShouldDeletePresenter()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testPresenter = await arrange.CreateTestPresenter();
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
-            var result = await act.SendAsync(new DeletePresenterCommand
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            await act.SendAsync(new DeletePresenterCommand
             {
                 HardDelete = true,
                 Id = testPresenter.Id
@@ -36,12 +34,10 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Commands
         public async Task SoftDeleteShouldFlagPresenterAsDeleted()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testPresenter = await arrange.CreateTestPresenter();
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
-            var result = await act.SendAsync(new DeletePresenterCommand
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            await act.SendAsync(new DeletePresenterCommand
             {
                 HardDelete = false,
                 Id = testPresenter.Id
@@ -56,10 +52,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Commands
 
 
         [Test]
-        public async Task ShouldThrowIfPresenterIdDoesNotExist()
+        public void ShouldThrowIfPresenterIdDoesNotExist()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var deleteCommand = new DeletePresenterCommand
             {
                 HardDelete = false,
@@ -70,10 +65,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Commands
         }
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotPresenterAdmin()
+        public void ShouldThrowIfUserIsNotPresenterAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
             var deleteCommand = new DeletePresenterCommand
             {
                 HardDelete = false,

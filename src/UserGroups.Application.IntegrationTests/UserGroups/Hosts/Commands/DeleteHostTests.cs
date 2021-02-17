@@ -16,11 +16,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
         public async Task HardDeleteShouldDeleteHost()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testHost = await arrange.CreateTestHost();
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             await act.SendAsync(new DeleteHostCommand()
             {
                 HardDelete = true,
@@ -36,10 +34,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
         public async Task SoftDeleteShouldFlagHostAsDeleted()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testHost = await arrange.CreateTestHost();
 
-            var act = new Act();
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             await act.SendAsync(new DeleteHostCommand()
             {
                 HardDelete = false,
@@ -54,12 +51,10 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
 
 
         [Test]
-        public async Task ShouldThrowIfHostIdDoesNotExist()
+        public void ShouldThrowIfHostIdDoesNotExist()
         {
-            var arrange = new Arrange();
-            await arrange.SetArrangeUser();
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
 
-            var act = new Act();
             var deleteCommand = new DeleteHostCommand
             {
                 HardDelete = false,
@@ -72,7 +67,7 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
         [Test]
         public void ShouldThrowIfUserIsNotHostAdmin()
         {
-            var act = new Act();
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
             var deleteCommand = new DeleteHostCommand
             {
                 HardDelete = false,

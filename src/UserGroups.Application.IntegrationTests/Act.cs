@@ -10,33 +10,48 @@ namespace UserGroups.Application.IntegrationTests
     using static Testing;
     public class Act
     {
-        public async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
+        private readonly IList<ApplicationRoles> _actAsUserRoles;
+        public OmahaMtgUser ActAsUser { get; private set; }
+
+        public Act(IList<ApplicationRoles> actAsUserRoles)
         {
-            return await Testing.SendAsync<TResponse>(request);
+            _actAsUserRoles = actAsUserRoles;
         }
 
-        public async Task<OmahaMtgUser> SetActUser(IList<ApplicationRoles> roles)
+        public async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
         {
-            var user = await AddAsync<OmahaMtgUser>(
-                new OmahaMtgUser()
-                {
-                    FirstName = "Act",
-                    LastName = "User"
+            await EnsureActAsUser();
+            return await Testing.SendAsync(request);
+        }
 
-                });
-
-            foreach (var role in roles)
+        public async Task EnsureActAsUser()
+        {
+            if (ActAsUser == null)
             {
-                await AddAsync<IdentityUserRole<string>>(new IdentityUserRole<string>()
+                var user = await AddAsync(
+                                new OmahaMtgUser()
+                                {
+                                    FirstName = "Act",
+                                    LastName = "User"
+
+                                });
+
+                foreach (var role in _actAsUserRoles)
                 {
-                    RoleId = role.ToString(),
-                    UserId = user.Id
-                });
+                    await AddAsync(new IdentityUserRole<string>()
+                    {
+                        RoleId = role.ToString(),
+                        UserId = user.Id
+                    });
+                }
+
+                ActAsUser = user;
             }
 
-            SetCurrentUser(user.Id, roles);
 
-            return user;
+            SetCurrentUser(ActAsUser.Id, _actAsUserRoles);
+
+
         }
 
     }

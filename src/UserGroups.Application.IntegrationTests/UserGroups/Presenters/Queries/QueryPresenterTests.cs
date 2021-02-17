@@ -17,14 +17,12 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Queries
         public async Task ShouldReturnTheCreatedPresenter()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var dbPresenters = new List<Presenter>();
             for (var i = 0; i < 10; i++)
                 dbPresenters.Add(
                     await arrange.CreateTestPresenter($"Test ${i} Blurb"));
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(new QueryPresenterQuery
             {
                 Skip = 5,
@@ -44,15 +42,13 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Queries
         public async Task ShouldFilterPresenters()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             for (var i = 0; i < 10; i++)
                 await arrange.CreateTestPresenter($"Test ${i} Blurb", $"Test ${i} Short Bio", isDeleted: false);
 
             await arrange.CreateTestPresenter(name: "Find Me ", bio: "Test  Short Blurb", isDeleted: false);
             await arrange.CreateTestPresenter(name: "Test Blurb", bio: "Find Me", isDeleted: false);
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(new QueryPresenterQuery
             {
                 Skip = 0,
@@ -69,10 +65,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Queries
         public async Task ShouldIncludeDeletedWhenRequested()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             await arrange.CreateTestPresenter("Test Blurb", "Test Short Blurb", isDeleted: true);
 
-            var act = new Act();
+            var act = new Act(new List<ApplicationRoles>() { ApplicationRoles.Admin });
             var result = await act.SendAsync(new QueryPresenterQuery
             {
                 Skip = 0,
@@ -87,10 +82,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Queries
         public async Task ShouldExcludeDeletedByDefault()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             await arrange.CreateTestPresenter("Test Blurb", "Test Short Blurb", isDeleted: true);
 
-            var act = new Act();
+            var act = new Act(new List<ApplicationRoles>() { ApplicationRoles.Admin });
             var result = await act.SendAsync(new QueryPresenterQuery
             {
                 Skip = 0,
@@ -104,10 +98,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Queries
 
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotPresenterAdmin()
+        public void ShouldThrowIfUserIsNotPresenterAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
             var command = new QueryPresenterQuery
             {
                 Skip = 0,

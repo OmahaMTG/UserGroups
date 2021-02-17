@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 using UserGroups.Application.Common.Behaviours;
@@ -24,12 +23,10 @@ namespace UserGroups.Application.UserGroups.Sponsors.Commands
     internal class CreateSponsorCommandHandler : IRequestHandler<CreateSponsorCommand, int>
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public CreateSponsorCommandHandler(IApplicationDbContext dbContext, IMapper mapper)
+        public CreateSponsorCommandHandler(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public async Task<int> Handle(CreateSponsorCommand request, CancellationToken cancellationToken)

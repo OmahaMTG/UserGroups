@@ -17,11 +17,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Queries
         public async Task ShouldReturnThePresenter()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testPresenter = await arrange.CreateTestPresenter();
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(new GetPresenterQuery { Id = testPresenter.Id });
 
             result.Name.Should().Be(testPresenter.Name);
@@ -31,21 +29,16 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Queries
         }
 
         [Test]
-        public async Task ShouldThrowIfPresenterDoesNotExist()
+        public void ShouldThrowIfPresenterDoesNotExist()
         {
-            var arrange = new Arrange();
-            await arrange.SetArrangeUser();
-
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             FluentActions.Invoking(() => act.SendAsync(new GetPresenterQuery { Id = 1 })).Should().Throw<NotFoundException>();
         }
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotPresenterAdmin()
+        public void ShouldThrowIfUserIsNotPresenterAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
             var command = new GetPresenterQuery { Id = 1 };
             FluentActions.Invoking(() => act.SendAsync(command)).Should().Throw<NotAuthorizedException>();
         }

@@ -19,15 +19,13 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Queries
         public async Task ShouldReturnTheCreatedHost()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
 
             var dbHosts = new List<Host>();
             for (var i = 0; i < 10; i++)
                 dbHosts.Add(
                     await arrange.CreateTestHost($"Test ${i} Blurb", $"Test ${i}  Name"));
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(new QueryHostQuery
             {
                 Skip = 5,
@@ -48,15 +46,13 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Queries
         public async Task ShouldFilterHosts()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             for (var i = 0; i < 10; i++)
                 await arrange.CreateTestHost($"Test ${i} Blurb", $"Test ${i}  Name");
 
             await arrange.CreateTestHost("Find Me ", "Test Name");
             await arrange.CreateTestHost("Test Blurb ", "Find Me");
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(new QueryHostQuery
             {
                 Skip = 0,
@@ -73,11 +69,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Queries
         public async Task ShouldIncludeDeletedWhenRequested()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             await arrange.CreateTestHost("Test Blurb", "Test Name", isDeleted: true);
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(new QueryHostQuery
             {
                 Skip = 0,
@@ -92,11 +86,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Queries
         public async Task ShouldExcludeDeletedByDefault()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             await arrange.CreateTestHost("Test Blurb", "Test Name", isDeleted: true);
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(new QueryHostQuery
             {
                 Skip = 0,
@@ -110,7 +102,7 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Queries
 
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotHostAdmin()
+        public void ShouldThrowIfUserIsNotHostAdmin()
         {
             var command = new QueryHostQuery
             {
@@ -119,8 +111,7 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Queries
                 IncludeDeleted = true
             };
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
             FluentActions.Invoking(() => act.SendAsync(command)).Should().Throw<NotAuthorizedException>();
         }
     }

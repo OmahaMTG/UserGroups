@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 using UserGroups.Application.Common.Behaviours;
@@ -24,12 +23,10 @@ namespace UserGroups.Application.UserGroups.Presenters.Commands
     internal class CreatePresenterCommandHandler : IRequestHandler<CreatePresenterCommand, int>
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public CreatePresenterCommandHandler(IApplicationDbContext dbContext, IMapper mapper)
+        public CreatePresenterCommandHandler(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public async Task<int> Handle(CreatePresenterCommand request, CancellationToken cancellationToken)

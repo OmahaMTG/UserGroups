@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,12 +23,10 @@ namespace UserGroups.Application.UserGroups.Presenters.Commands
     internal class UpdatePresenterCommandHandler : IRequestHandler<UpdatePresenterCommand>
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public UpdatePresenterCommandHandler(IApplicationDbContext dbContext, IMapper mapper)
+        public UpdatePresenterCommandHandler(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public async Task<Unit> Handle(UpdatePresenterCommand request, CancellationToken cancellationToken)

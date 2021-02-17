@@ -15,11 +15,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Queries
         public async Task ShouldReturnTheHost()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testHost = await arrange.CreateTestHost();
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(new GetHostQuery { Id = testHost.Id });
 
             result.Name.Should().Be(testHost.Name);
@@ -30,22 +28,17 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Queries
         }
 
         [Test]
-        public async Task ShouldThrowIfHostDoesNotExist()
+        public void ShouldThrowIfHostDoesNotExist()
         {
-            var arrange = new Arrange();
-            await arrange.SetArrangeUser();
-
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             FluentActions.Invoking(() =>
                 act.SendAsync(new GetHostQuery { Id = 1 })).Should().Throw<NotFoundException>();
         }
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotHostAdmin()
+        public void ShouldThrowIfUserIsNotHostAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
 
             var command = new GetHostQuery { Id = 1 };
             FluentActions.Invoking(() => act.SendAsync(command)).Should().Throw<NotAuthorizedException>();

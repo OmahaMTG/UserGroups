@@ -16,11 +16,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
         public async Task HardDeleteShouldDeleteMeeting()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testMeeting = await arrange.CreateTestMeeting();
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             await act.SendAsync(new DeleteMeetingCommand()
             {
                 HardDelete = true,
@@ -37,10 +35,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
         public async Task SoftDeleteShouldFlagMeetingAsDeleted()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testMeeting = await arrange.CreateTestMeeting();
 
-            var act = new Act();
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             await act.SendAsync(new DeleteMeetingCommand()
             {
                 HardDelete = false,
@@ -54,26 +51,22 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
         }
 
         [Test]
-        public async Task ShouldThrowIfMeetingIdDoesNotExist()
+        public void ShouldThrowIfMeetingIdDoesNotExist()
         {
-            var arrange = new Arrange();
-            await arrange.SetArrangeUser();
-
             var deleteCommand = new DeleteMeetingCommand()
             {
                 HardDelete = false,
                 Id = 1
             };
 
-            var act = new Act();
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             FluentActions.Invoking(() => act.SendAsync(deleteCommand)).Should().Throw<NotFoundException>();
         }
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotAdmin()
+        public void ShouldThrowIfUserIsNotAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
 
             var deleteCommand = new DeleteMeetingCommand()
             {

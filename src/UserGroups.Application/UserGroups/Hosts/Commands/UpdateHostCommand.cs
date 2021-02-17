@@ -23,12 +23,10 @@ namespace UserGroups.Application.UserGroups.Hosts.Commands
     internal class UpdateHostCommandHandler : IRequestHandler<UpdateHostCommand>
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IMapper _mapper;
 
         public UpdateHostCommandHandler(IApplicationDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
         public async Task<Unit> Handle(UpdateHostCommand request, CancellationToken cancellationToken)
         {

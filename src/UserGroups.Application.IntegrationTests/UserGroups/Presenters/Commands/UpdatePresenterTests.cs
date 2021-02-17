@@ -23,11 +23,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Commands
         public async Task ShouldUpdatePresenter()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testPresenter = await arrange.CreateTestPresenter();
 
-            var act = new Act();
-            var user = await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var command = _command;
             command.Id = testPresenter.Id;
             await act.SendAsync(command);
@@ -39,14 +37,13 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Commands
             updatedPresenter.ContactInfo.Should().Be(command.ContactInfo);
             updatedPresenter.IsDeleted.Should().Be(command.IsDeleted);
             updatedPresenter.UpdatedDate.Should().BeCloseTo(DateTime.Now, 10000);
-            updatedPresenter.UpdatedByUserId.Should().Be(user.Id);
+            updatedPresenter.UpdatedByUserId.Should().Be(act.ActAsUser.Id);
         }
 
         [Test]
-        public async Task ShouldThrowIfPresenterNotFound()
+        public void ShouldThrowIfPresenterNotFound()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var command = _command;
             command.Id = 1;
 
@@ -56,10 +53,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Presenters.Commands
 
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotPresenterAdmin()
+        public void ShouldThrowIfUserIsNotPresenterAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
             FluentActions.Invoking(() => act.SendAsync(_command)).Should().Throw<NotAuthorizedException>();
         }
     }

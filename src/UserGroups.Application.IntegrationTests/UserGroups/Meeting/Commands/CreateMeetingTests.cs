@@ -33,8 +33,7 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
         public async Task ShouldCreateTheMeeting()
         {
 
-            var act = new Act();
-            var testUser = await act.SetActUser(new List<ApplicationRoles>() { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles>() { ApplicationRoles.Admin });
             var command = Command();
             var createdId = await act.SendAsync(command);
 
@@ -51,8 +50,8 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
             dbMeeting.PublishStartTime.Should().Be(command.PublishStartTime);
             dbMeeting.StartTime.Should().Be(command.StartTime);
             dbMeeting.VimeoId.Should().Be(command.VimeoId);
-            dbMeeting.CreatedByUserId.Should().Be(testUser.Id);
-            dbMeeting.UpdatedByUserId.Should().Be(testUser.Id);
+            dbMeeting.CreatedByUserId.Should().Be(act.ActAsUser.Id);
+            dbMeeting.UpdatedByUserId.Should().Be(act.ActAsUser.Id);
             dbMeeting.CreatedDate.Should().BeCloseTo(DateTime.Now, 1000);
             dbMeeting.UpdatedDate.Should().BeCloseTo(DateTime.Now, 1000);
             dbMeeting.HostMeetingBody.Should().Be(command.MeetingHostBody);
@@ -62,10 +61,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
 
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotAdmin()
+        public void ShouldThrowIfUserIsNotAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
 
             FluentActions.Invoking(() => act.SendAsync(Command())).Should().Throw<NotAuthorizedException>();
         }

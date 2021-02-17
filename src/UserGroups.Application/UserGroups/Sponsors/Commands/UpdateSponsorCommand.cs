@@ -26,12 +26,10 @@ namespace UserGroups.Application.UserGroups.Sponsors.Commands
     internal class UpdateSponsorCommandHandler : IRequestHandler<UpdateSponsorCommand>
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IMapper _mapper;
 
         public UpdateSponsorCommandHandler(IApplicationDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public async Task<Unit> Handle(UpdateSponsorCommand request, CancellationToken cancellationToken)

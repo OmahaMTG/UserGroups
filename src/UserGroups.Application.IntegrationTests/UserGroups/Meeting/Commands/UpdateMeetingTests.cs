@@ -32,11 +32,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
         public async Task ShouldUpdateMeeting()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testMeeting = await arrange.CreateTestMeeting();
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var request = _command;
             request.Id = testMeeting.Id;
             await act.SendAsync(request);
@@ -57,13 +55,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
         }
 
         [Test]
-        public async Task ShouldThrowIfMeetingNotFound()
+        public void ShouldThrowIfMeetingNotFound()
         {
-            var arrange = new Arrange();
-            await arrange.SetArrangeUser();
-
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var request = _command;
             request.Id = 1;
 
@@ -72,10 +66,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Commands
         }
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotMeetingAdmin()
+        public void ShouldThrowIfUserIsNotMeetingAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
 
             FluentActions.Invoking(() => act.SendAsync(_command)).Should().Throw<NotAuthorizedException>();
         }

@@ -14,11 +14,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Queries
         public async Task ShouldReturnTheMeeting()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testMeeting = await arrange.CreateTestMeeting();
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(new GetMeetingQuery() { Id = testMeeting.Id });
 
             result.Id.Should().Be(testMeeting.Id);
@@ -42,34 +40,30 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Meeting.Queries
         public async Task ShouldReturnTheRsvpCount()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testMeeting = await arrange.CreateTestMeeting();
             var testUser1 = await arrange.CreateTestUser(new List<ApplicationRoles>() { ApplicationRoles.User });
             var testUser2 = await arrange.CreateTestUser(new List<ApplicationRoles>() { ApplicationRoles.User });
             await arrange.CreateTestMeetingRsvp(testUser1.Id, testMeeting.Id);
             await arrange.CreateTestMeetingRsvp(testUser2.Id, testMeeting.Id);
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var result = await act.SendAsync(new GetMeetingQuery() { Id = testMeeting.Id });
 
             result.Meta.RsvpCount.Should().Be(2);
         }
 
         [Test]
-        public async Task ShouldThrowIfMeetingDoesNotExist()
+        public void ShouldThrowIfMeetingDoesNotExist()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             FluentActions.Invoking(() =>
                 act.SendAsync(new GetMeetingQuery() { Id = 1 })).Should().Throw<NotFoundException>();
         }
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotHostAdmin()
+        public void ShouldThrowIfUserIsNotHostAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
             var command = new GetMeetingQuery { Id = 1 };
             FluentActions.Invoking(() => act.SendAsync(command)).Should().Throw<NotAuthorizedException>();
         }

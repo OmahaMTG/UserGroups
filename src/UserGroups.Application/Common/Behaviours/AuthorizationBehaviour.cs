@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using UserGroups.Application.Common.Exceptions;
 using UserGroups.Application.Common.Interfaces;
-using UserGroups.Application.Common.Models;
 
 namespace UserGroups.Application.Common.Behaviours
 {
@@ -28,7 +27,7 @@ namespace UserGroups.Application.Common.Behaviours
 
             if (authAttribute == null) return await next();
 
-            var matchingRoles = authAttribute.Roles.Intersect<ApplicationRoles>(_userContext.Roles);
+            var matchingRoles = authAttribute.Roles.Intersect(_userContext.Roles);
 
             if (matchingRoles.Any()) return await next();
             throw new NotAuthorizedException(_userContext.UserName, request.GetType().FullName);

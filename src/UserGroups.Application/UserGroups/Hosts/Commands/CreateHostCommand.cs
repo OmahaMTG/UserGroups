@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 using UserGroups.Application.Common.Behaviours;
@@ -23,12 +22,10 @@ namespace UserGroups.Application.UserGroups.Hosts.Commands
     internal class CreateHostCommandHandler : IRequestHandler<CreateHostCommand, int>
     {
         private readonly IApplicationDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public CreateHostCommandHandler(IApplicationDbContext dbContext, IMapper mapper)
+        public CreateHostCommandHandler(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public async Task<int> Handle(CreateHostCommand request, CancellationToken cancellationToken)

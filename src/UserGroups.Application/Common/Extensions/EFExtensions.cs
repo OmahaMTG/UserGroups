@@ -10,7 +10,6 @@ namespace UserGroups.Application.Common.Extensions
         {
             var range = dbSet.Where(condition);
             dbSet.RemoveRange(range);
-            return;
         }
     }
 }

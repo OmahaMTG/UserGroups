@@ -25,13 +25,11 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
         public async Task ShouldUpdateHost()
         {
             var arrange = new Arrange();
-            await arrange.SetArrangeUser();
             var testHost = await arrange.CreateTestHost();
 
-            var act = new Act();
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var command = _command;
             command.Id = testHost.Id;
-            var user = await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
             await act.SendAsync(command);
 
             var assert = new Assert();
@@ -42,17 +40,14 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
             updatedHost.ContactInfo.Should().Be(command.ContactInfo);
             updatedHost.IsDeleted.Should().Be(command.IsDeleted);
             updatedHost.UpdatedDate.Should().BeCloseTo(DateTime.Now, 10000);
-            updatedHost.UpdatedByUserId.Should().Be(user.Id);
+            updatedHost.UpdatedByUserId.Should().Be(act.ActAsUser.Id);
         }
 
         [Test]
-        public async Task ShouldThrowIfHostNotFound()
+        public void ShouldThrowIfHostNotFound()
         {
-            var arrange = new Arrange();
-            await arrange.SetArrangeUser();
 
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.Admin });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.Admin });
             var command = _command;
             command.Id = 1;
 
@@ -61,10 +56,9 @@ namespace UserGroups.Application.IntegrationTests.UserGroups.Hosts.Commands
         }
 
         [Test]
-        public async Task ShouldThrowIfUserIsNotHostAdmin()
+        public void ShouldThrowIfUserIsNotHostAdmin()
         {
-            var act = new Act();
-            await act.SetActUser(new List<ApplicationRoles> { ApplicationRoles.User });
+            var act = new Act(new List<ApplicationRoles> { ApplicationRoles.User });
             FluentActions.Invoking(() => act.SendAsync(_command)).Should().Throw<NotAuthorizedException>();
         }
     }
